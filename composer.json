@@ -1,0 +1,59 @@
+{
+    "name": "jelte-ten-holt/in-other-agents",
+    "description": "Bearer-gated MCP (Streamable HTTP) scaffolding for Laravel apps — AgentTool base class, authentication middleware, tool registry, audit log subscriber.",
+    "license": "MIT",
+    "type": "library",
+    "keywords": [
+        "laravel",
+        "mcp",
+        "agent",
+        "claude",
+        "ai"
+    ],
+    "authors": [
+        {
+            "name": "Jelte ten Holt",
+            "email": "inotherwords@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "laravel/framework": "^12.0 || ^13.0",
+        "opgginc/laravel-mcp-server": "^2.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0 || ^11.0",
+        "phpunit/phpunit": "^11.0 || ^12.0",
+        "laravel/pint": "^1.18"
+    },
+    "autoload": {
+        "psr-4": {
+            "InOtherAgents\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "InOtherAgents\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "lint": "vendor/bin/pint",
+        "lint:check": "vendor/bin/pint --test"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        },
+        "laravel": {
+            "providers": [
+                "InOtherAgents\\AgentServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
+    }
+}
