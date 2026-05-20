@@ -10,38 +10,89 @@ Bearer-gated MCP (Streamable HTTP) scaffolding for Laravel apps. Provides:
 
 This package ships zero tools of its own. Consumers register everything via `config/agents.php`.
 
-## Status
+## Install
 
-Pre-stable, in active design. Currently consumed by `persistence-tool-box` via a Composer `type: path` symlink. Will be published to Packagist when stable enough to deploy; at that point `in-other-shops` (which has its own equivalent Agent domain) will be refactored to consume this package.
+```sh
+composer require jelte-ten-holt/in-other-agents
+```
 
-## Quick start in a consuming app
+Laravel package discovery picks up the service provider automatically.
 
-1. Add the path repo to `composer.json`:
+Publish the config (optional — defaults work out of the box):
 
-   ```json
-   "repositories": [
-       {"type": "path", "url": "../in-other-agents", "options": {"symlink": true}}
-   ]
-   ```
+```sh
+php artisan vendor:publish --tag=agents-config
+```
 
-2. Require the package:
+Set the bearer token in `.env`:
 
-   ```sh
-   composer require jelte-ten-holt/in-other-agents:@dev
-   ```
+```
+AGENT_BEARER_TOKEN=some-long-random-string
+```
 
-3. Set `AGENT_BEARER_TOKEN` in `.env` to any random string.
+An empty token fails closed — the `/mcp` endpoint rejects everything until a token is set.
 
-4. Register a tool by creating a class that extends `InOtherAgents\AgentTool` and adding it to `config/agents.php`:
+## Defining a tool
 
-   ```php
-   'tools' => [
-       App\Mcp\Tools\Ping::class,
-   ],
-   ```
+Create a class that extends `InOtherAgents\AgentTool`:
 
-5. POST to `/mcp` with `Authorization: Bearer <token>`.
+```php
+namespace App\Mcp\Tools;
+
+use InOtherAgents\AgentTool;
+
+final class Ping extends AgentTool
+{
+    public static function identifier(): string
+    {
+        return 'ping';
+    }
+
+    public static function displayName(): string
+    {
+        return 'Ping';
+    }
+
+    public function description(): string
+    {
+        return 'Health check — returns pong.';
+    }
+
+    public function inputSchema(): array
+    {
+        return [
+            'type' => 'object',
+            'properties' => new \stdClass(),
+        ];
+    }
+
+    public function __invoke(array $arguments): array
+    {
+        return ['result' => 'pong'];
+    }
+}
+```
+
+Register it in `config/agents.php`:
+
+```php
+'tools' => [
+    App\Mcp\Tools\Ping::class,
+],
+```
+
+Then POST to `/mcp` with `Authorization: Bearer <token>` and a standard MCP JSON-RPC envelope.
+
+## Audit log
+
+Every tool invocation dispatches `InOtherAgents\Events\ToolInvoked` (success) or `ToolInvocationFailed` (throw). The bundled `AgentLogSubscriber` writes them to the configured Monolog channel (`AGENT_LOG_CHANNEL`, defaults to `stack`). Bearer tokens are hashed before logging — never the raw value.
+
+Errors thrown as `InvalidArgumentException` are translated to JSON-RPC `INVALID_PARAMS` so the calling agent sees the actual message. Other throwables propagate as the framework's `INTERNAL_ERROR`.
 
 ## Auth roadmap
 
-v1 is bearer-token-only. OAuth (Passport + Dynamic Client Registration) is planned for when this package is wired up to Co-work — the in-other-shops `Agent` domain has the reference implementation; lift it back in here when the migration happens.
+v0.1 is bearer-token-only. OAuth (Passport + Dynamic Client Registration) is planned for when a consumer needs Co-work reachability — the `in-other-shops` Agent domain has a reference implementation that will get lifted back into this package at that point.
+
+## Versioning
+
+[Semantic Versioning](https://semver.org/). Pre-1.0, the surface may shift between minor versions while consumers iterate.

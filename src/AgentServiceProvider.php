@@ -34,6 +34,12 @@ final class AgentServiceProvider extends ServiceProvider
             }
         });
 
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/config/agents.php' => config_path('agents.php'),
+            ], 'agents-config');
+        }
+
         Event::subscribe(AgentLogSubscriber::class);
     }
 

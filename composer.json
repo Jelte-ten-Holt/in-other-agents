@@ -6,6 +6,8 @@
     "keywords": [
         "laravel",
         "mcp",
+        "mcp-server",
+        "streamable-http",
         "agent",
         "claude",
         "ai"
@@ -16,6 +18,10 @@
             "email": "inotherwords@gmail.com"
         }
     ],
+    "support": {
+        "issues": "https://github.com/Jelte-ten-Holt/in-other-agents/issues",
+        "source": "https://github.com/Jelte-ten-Holt/in-other-agents"
+    },
     "require": {
         "php": "^8.3",
         "laravel/framework": "^12.0 || ^13.0",
